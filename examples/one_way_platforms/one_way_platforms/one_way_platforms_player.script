@@ -15,6 +15,8 @@ function init(self)
 
 	-- keep track of movement vector and if there is ground contact
 	self.velocity = vmath.vector3(0, 0, 0)
+	self.max_velocity_x = 250
+	self.acceleration_x = 15
 	self.ground_contact = false
 	-- also keep track of if there is contact with a platform from below it
 	self.platform_contact_from_below = false
@@ -32,16 +34,23 @@ function update(self, dt)
 
 	local gravity = vmath.vector3(0, gravity, 0)
 
+	-- movement with some acceleration
 	if self.move_left then
-		self.velocity.x = -250
+		self.velocity.x = self.velocity.x - self.acceleration_x
 		sprite.set_hflip("#sprite", true)
 	elseif self.move_right then
-		self.velocity.x = 250
+		self.velocity.x = self.velocity.x + self.acceleration_x
 		sprite.set_hflip("#sprite", false)
 	else
-		self.velocity.x = 0
+		self.velocity.x = self.velocity.x * 0.6
 	end
 
+	if self.velocity.x > self.max_velocity_x then
+		self.velocity.x = self.max_velocity_x
+	elseif self.velocity.x < (self.max_velocity_x * -1) then
+		self.velocity.x = -self.max_velocity_x
+	end
+	
 	if not self.ground_contact then
 		-- Apply gravity if there's no ground contact
 		self.velocity = self.velocity + gravity
